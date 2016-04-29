@@ -128,7 +128,6 @@ def get_property_title_and_link(soup,f,dir_name):
     pool2.join()
 
 def get_position(f_attraction):
-#    f_attraction=open('Attractions.txt','r')
     pool = multiprocessing.Pool(4)
     while True:
         attraction_url = f_attraction.readline()
@@ -149,18 +148,3 @@ def get_position(f_attraction):
 if __name__ == "__main__":
     f_attraction=open('Attractions.txt','r')
     get_position(f_attraction)
-    '''pool = multiprocessing.Pool(4)
-    f_property_title_and_link=open('property_title_and_link.txt','r')
-    while True:
-        out = f_property_title_and_link.readline()
-        if len(out) < 1:
-            break
-        property_url = f_property_title_and_link.readline()
-        out = out.split('\n')[0]
-        dir_name = "data/" + out.decode('utf-8')
-        if not os.path.exists(dir_name):
-            os.makedirs(dir_name)
-        pool.apply_async(get_title_and_link,(property_url,dir_name,))
-    f_property_title_and_link.close()
-    pool.close()
-    pool.join()'''
