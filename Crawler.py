@@ -4,6 +4,44 @@ import multiprocessing
 import os
 from bs4 import BeautifulSoup
 
+def rank(dir_name):
+    f_rank = open(dir_name + "/property_score.txt", 'r')
+    f_score = open (dir_name + "/score.txt", 'w')
+    while True:
+        place = f_rank.readline()
+        if len(place) < 3:
+            break
+        try:
+#            print place.split('\n')[0].decode('utf-8')
+            place = place.split('\n')[0]
+        except:
+            pass
+#        place = place.split('\n')[0]
+        score = 0
+        score = score + 2*int(f_rank.readline())
+        score = score + 1*int(f_rank.readline())
+        score = score + 0*int(f_rank.readline())
+        score = score + (-1)*int(f_rank.readline())
+        score = score + (-2)*int(f_rank.readline())
+        f_score.write("%05d" % score + " " + place + '\n' )
+    f_score.close()
+    f_out = open(dir_name + "/rank.txt", 'w')
+    with open(dir_name + "/score.txt", 'r') as f:
+        sorted_file = sorted(f,reverse = True)
+        f_out.writelines(sorted_file)
+
+def get_rank(property_url,dir_name,f_rank,out):
+    res = requests.get(property_url)
+    soup = BeautifulSoup(res.text.encode("utf-8"))
+    if ( soup.find_all("div", {"class":"valueCount fr part"}) ):
+        try:
+            print out.decode('utf-8')
+        except:
+            pass
+        f_rank.write(out+'\n')
+        for rank in soup.find_all("div", {"class":"valueCount fr part"}):
+            f_rank.write(rank.text+'\n')
+
 def check_contain_chinese_or_english(check_str):
     for ch in check_str.decode('utf-8'):
         if u'\u4e00' <= ch <= u'\u9fff': # 中文
@@ -63,7 +101,6 @@ def get_comments_and_comment_url(f,property_url,dir_name):
         comment_url.write(test+'\n')
 
         # comments
-
         comment_res = requests.get(test)
         comment_soup = BeautifulSoup(comment_res.text.encode("utf-8"))
         for all_comment in comment_soup.find_all("div", {"class":"entry"}):
@@ -112,6 +149,7 @@ def get_property_title_and_link(soup,f,dir_name):
     folder_name = dir_name
     pool2 = multiprocessing.Pool(4)
     f_property_title_and_link=open(dir_name + "/" + "property_title_and_link.txt", 'r')
+    f_rank = open(dir_name + "/property_score.txt", 'w')
     while True:
         out = f_property_title_and_link.readline()
         if len(out) < 1:
@@ -123,9 +161,12 @@ def get_property_title_and_link(soup,f,dir_name):
         if not os.path.exists(dir_name):
             os.makedirs(dir_name)
         pool2.apply_async(get_title_and_link,(property_url,dir_name,))
+        pool2.apply_async(get_rank(property_url,dir_name,f_rank,out))
     f_property_title_and_link.close()
+    f_rank.close()
     pool2.close()
     pool2.join()
+    rank(folder_name)
 
 def get_position(f_attraction):
     pool = multiprocessing.Pool(4)
