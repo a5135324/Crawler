@@ -273,4 +273,5 @@ def get_position(open_attraction_file):
 	pool.join()
 
 if __name__ == "__main__":
+	open_attraction_file=open('Attractions_eng.txt','r')
 	get_position(open_attraction_file)
