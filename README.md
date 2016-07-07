@@ -1,3 +1,10 @@
-# Crawler
-Crawler.py請搭配Attractions.txt服用
-Crawler_eng.py請搭配Attractions_eng.txt服用
+# Tripadvisor crawler
+這是一個用來抓 tripadvisor 的 crawler，他是使用python所寫。
+
+Crawler.py 應該不會再更新了，因為我們的專題似乎不會做中文。如果要使用請搭配 Attractions.txt。
+
+Crawler_eng.py 請搭配 Attractions_eng.txt 服用，在做完專題之前應該會持續更新。
+
+Preprocess.py 則是將爬下來的東西轉換成LDA的輸入格式。也就是去除標點符號、停止詞的功用。
+
+[StopWord List](http://xpo6.com/list-of-english-stop-words/) 來源。
