@@ -1,8 +1,31 @@
 ﻿#-*- coding: utf-8 -*-
+import logging
 import multiprocessing
 import os
 import requests
+import shutil
 from bs4 import BeautifulSoup
+
+def delete_garbage_folder(dir_name):
+	f = open(dir_name + '/eng_property_title_and_link.txt','r')
+	while True:
+		title = f.readline()
+		if title == '':
+			break
+		title = title.split('\n')[0]
+		#print dir_name + '/' + title
+		if os.path.exists(dir_name + "/" + title):
+			if not os.path.exists(dir_name + "/" + title + "/" + title + "_all.txt"):
+				try:
+					shutil.rmtree(dir_name + '/' + title)
+				except:
+					print "Delete " + title + " Error"
+			elif os.path.getsize(dir_name + "/" + title + "/" + title + "_all.txt") == 0:
+				try:
+					shutil.rmtree(dir_name + '/' + title)
+				except:
+					print "Delete " + title + " Error!!!!!"
+		f.readline()
 
 def check_contain_chinese_or_english(check_str):
 	for ch in check_str.decode('utf-8'):
@@ -20,13 +43,11 @@ def get_comment(comment_url,f,dir_name):
 		if len(test)  < 83:
 			break
 		comment_res = requests.get(test)
-		comment_soup = BeautifulSoup(comment_res.text.encode("utf-8"))
+		comment_soup = BeautifulSoup(comment_res.text.encode("utf-8"), "html.parser")
 		for all_comment in comment_soup.find_all("div", {"class":"entry"}):
 			where = all_comment.find("p")
 			if check_contain_chinese_or_english(where.text.encode('utf-8')):
-				f.write(where.text.encode('utf-8')+'\n')
-	print "Finish " + dir_name.split('/')[2] + " comments..."
-	comment_url.close()
+				f.write(where.text.encode('utf-8').split('\n')[1]+'\n')
 
 def get_url(read_id,comment_url,property_url):
 	leave = 0
@@ -90,6 +111,14 @@ def get_comments_and_comment_url(property_url,dir_name):
 	get_comment(comment_url_3star,f3,dir_name)
 	get_comment(comment_url_2star,f2,dir_name)
 	get_comment(comment_url_1star,f1,dir_name)
+	
+	f0.close()
+	f1.close()
+	f2.close()
+	f3.close()
+	f4.close()
+	f5.close()
+	print "Finish " + dir_name.split('/')[2] + " comments..."
 
 def check_star(all_id):
 	if (all_id.find("img", {"class":"sprite-rating_s_fill rating_s_fill s50"})):
@@ -165,15 +194,10 @@ def get_comment_id(soup,dir_name,property_url):
 	star_3.close()
 	star_2.close()
 	star_1.close()
-	print id_num
+	print dir_name.split('/')[2] + " has " + id_num.__str__() + " comments."
 	if id_num == 0:
-		print "delete " + dir_name.split('/')[2]
-		folder = "F:/Project/Crawler/" + dir_name
-		folder = folder.replace("/","\\")
-		os.rename(folder,"123")
-		command = "rmdir /s /q %s"
-		command = command % "F:\\Project\\Crawler\\123"
-		os.system(command)
+		shutil.rmtree(dir_name)
+		print "Delete " + dir_name.split('/')[2] + " with id count = 0"
 	elif id_num > 0:
 		get_comments_and_comment_url(property_url,dir_name)
 
@@ -196,8 +220,11 @@ def get_property_title_and_link(soup,f,dir_name):
 			if (link.encode('utf-8')[38] != 's'): # 過濾私人導覽類
 				# 有些地名有兩個以上, 所以我只取前面那個
 				# 都取的話會改到路徑, 之後有空的話再修改
-				if (prop_link.text.encode('utf-8').find('/') != -1 ):
+				if (prop_link.text.encode('utf-8').find(' /') != -1 ):
 					place = prop_link.text.encode('utf-8').split(' /')[0]
+					f.write(place+'\n')
+				elif (prop_link.text.encode('utf-8').find('/') != -1 ):
+					place = prop_link.text.encode('utf-8').split('/')[0]
 					f.write(place+'\n')
 				else:
 					f.write(prop_link.text.encode('utf-8')+'\n')
@@ -237,12 +264,12 @@ def get_property_title_and_link(soup,f,dir_name):
 		if not os.path.exists(dir_name):
 			os.makedirs(dir_name)
 		pool2.apply_async(get_title_and_link,(property_url,dir_name,))
-		#pool2.apply_async(get_rank(property_url,dir_name,f_rank,out))
 	f_property_title_and_link.close()
 	f_rank.close()
 	pool2.close()
 	pool2.join()
-	#rank(folder_name)
+	print "Start delete garbage folder"
+	delete_garbage_folder(folder_name)
 
 # 用來了解是哪個縣市
 def get_position(open_attraction_file):
@@ -272,6 +299,11 @@ def get_position(open_attraction_file):
 	pool.close()
 	pool.join()
 
-if __name__ == "__main__":
+def main():
 	open_attraction_file=open('Attractions_eng.txt','r')
 	get_position(open_attraction_file)
+
+if __name__ == "__main__":
+	FORMAT = '%(asctime)s %(lineno)04d %(levelname)05s %(message)s'
+	logging.basicConfig(format = FORMAT, level=logging.DEBUG, filename='log.txt')
+	main()
