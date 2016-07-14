@@ -24,29 +24,6 @@ def LDA_format(fin, fout, num):
 		if str == '':
 			break
 		fout.write(str)
-		
-def remove_note2(str):
-	count = -1
-	dot = False
-	for x in str:
-		count = count +1;
-		if (ord(x) >=97 and ord(x) <= 122):
-			continue
-		elif ord(x) == 46:
-			if not dot:
-				str = str.replace(str[count], ' . ')
-				dot = True
-			continue
-		elif (ord(x) == 39 and ord(str[count-1]) >= 97 and ord(str[count-1]) <= 122 ):
-			if count == len(str)-1:
-				continue
-			elif (ord(x) == 39 and ord(str[count+1]) >= 97 and ord(str[count+1]) <= 122 ):
-				continue
-			else:
-				str = str.replace(str[count], ' ')
-		else:
-			str = str.replace(str[count], ' ')
-	return str
 	
 def remove_note(str):
 	count = -1
