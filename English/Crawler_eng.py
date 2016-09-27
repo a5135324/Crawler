@@ -1,5 +1,4 @@
 ﻿#-*- coding: utf-8 -*-
-import logging
 import multiprocessing
 import os
 import requests
@@ -13,7 +12,6 @@ def delete_garbage_folder(dir_name):
 		if title == '':
 			break
 		title = title.split('\n')[0]
-		#print dir_name + '/' + title
 		if os.path.exists(dir_name + "/" + title):
 			if not os.path.exists(dir_name + "/" + title + "/" + title + "_all.txt"):
 				try:
@@ -73,51 +71,40 @@ def get_comments_and_comment_url(property_url,dir_name):
 	read_id = open(dir_name +'/id.txt', 'r')
 	read_id1 = open(dir_name +'/id_1.txt', 'r')
 	read_id2 = open(dir_name +'/id_2.txt', 'r')
-	read_id3 = open(dir_name +'/id_3.txt', 'r')
 	read_id4 = open(dir_name +'/id_4.txt', 'r')
 	read_id5 = open(dir_name +'/id_5.txt', 'r')
 	
 	comment_url = open(dir_name + '/comment_url.txt','w')
 	comment_url_5star = open(dir_name + '/5star_comment_url.txt','w')
 	comment_url_4star = open(dir_name + '/4star_comment_url.txt','w')
-	comment_url_3star = open(dir_name + '/3star_comment_url.txt','w')
 	comment_url_2star = open(dir_name + '/2star_comment_url.txt','w')
 	comment_url_1star = open(dir_name + '/1star_comment_url.txt','w')
 	
 	get_url(read_id,comment_url,property_url)
 	get_url(read_id1,comment_url_1star,property_url)
 	get_url(read_id2,comment_url_2star,property_url)
-	get_url(read_id3,comment_url_3star,property_url)
 	get_url(read_id4,comment_url_4star,property_url)
 	get_url(read_id5,comment_url_5star,property_url)
 
 	all_comment_url = open(dir_name + '/comment_url.txt','r')
 	comment_url_5star = open(dir_name + '/5star_comment_url.txt','r')
 	comment_url_4star = open(dir_name + '/4star_comment_url.txt','r')
-	comment_url_3star = open(dir_name + '/3star_comment_url.txt','r')
 	comment_url_2star = open(dir_name + '/2star_comment_url.txt','r')
 	comment_url_1star = open(dir_name + '/1star_comment_url.txt','r')
 	
 	f0=open(dir_name + "/" + dir_name.split('/')[2] + "_all.txt", 'w')
-	f1=open(dir_name + "/" + dir_name.split('/')[2] + "_1.txt", 'w')
-	f2=open(dir_name + "/" + dir_name.split('/')[2] + "_2.txt", 'w')
-	f3=open(dir_name + "/" + dir_name.split('/')[2] + "_3.txt", 'w')
-	f4=open(dir_name + "/" + dir_name.split('/')[2] + "_4.txt", 'w')
-	f5=open(dir_name + "/" + dir_name.split('/')[2] + "_5.txt", 'w')
+	f1=open(dir_name + "/" + dir_name.split('/')[2] + "_1+2.txt", 'w')
+	f4=open(dir_name + "/" + dir_name.split('/')[2] + "_4+5.txt", 'w')
 	
 	get_comment(all_comment_url,f0,dir_name)
-	get_comment(comment_url_5star,f5,dir_name)
+	get_comment(comment_url_5star,f4,dir_name)
 	get_comment(comment_url_4star,f4,dir_name)
-	get_comment(comment_url_3star,f3,dir_name)
-	get_comment(comment_url_2star,f2,dir_name)
+	get_comment(comment_url_2star,f1,dir_name)
 	get_comment(comment_url_1star,f1,dir_name)
 	
 	f0.close()
 	f1.close()
-	f2.close()
-	f3.close()
 	f4.close()
-	f5.close()
 	print "Finish " + dir_name.split('/')[2] + " comments..."
 
 def check_star(all_id):
@@ -138,7 +125,6 @@ def get_comment_id(soup,dir_name,property_url):
 	save_id = open(dir_name + "/id.txt", 'w')
 	star_5 = open(dir_name + "/id_5.txt", 'w')
 	star_4 = open(dir_name + "/id_4.txt", 'w')
-	star_3 = open(dir_name + "/id_3.txt", 'w')
 	star_2 = open(dir_name + "/id_2.txt", 'w')
 	star_1 = open(dir_name + "/id_1.txt", 'w')
 	id_num = 0
@@ -151,8 +137,6 @@ def get_comment_id(soup,dir_name,property_url):
 				star_5.write(u_id+'\n')
 			elif num == 4 :
 				star_4.write(u_id+'\n')
-			elif num == 3 :
-				star_3.write(u_id+'\n')
 			elif num == 2 :
 				star_2.write(u_id+'\n')
 			elif num == 1 :
@@ -168,8 +152,6 @@ def get_comment_id(soup,dir_name,property_url):
 				star_5.write(u_id+'\n')
 			elif num == 4 :
 				star_4.write(u_id+'\n')
-			elif num == 3 :
-				star_3.write(u_id+'\n')
 			elif num == 2 :
 				star_2.write(u_id+'\n')
 			elif num == 1 :
@@ -191,7 +173,6 @@ def get_comment_id(soup,dir_name,property_url):
 	save_id.close()
 	star_5.close()
 	star_4.close()
-	star_3.close()
 	star_2.close()
 	star_1.close()
 	print dir_name.split('/')[2] + " has " + id_num.__str__() + " comments."
@@ -211,6 +192,7 @@ def get_title_and_link(property_url,dir_name):
 
 # 用來獲得每個縣市景點的url跟景點名稱
 def get_property_title_and_link(soup,f,dir_name):
+	count_proper = 1
 	while True:
 		for prop_tag in soup.find_all("div", {"class":"property_title"}):
 			prop_link = prop_tag.find("a")
@@ -222,13 +204,18 @@ def get_property_title_and_link(soup,f,dir_name):
 				# 都取的話會改到路徑, 之後有空的話再修改
 				if (prop_link.text.encode('utf-8').find(' /') != -1 ):
 					place = prop_link.text.encode('utf-8').split(' /')[0]
-					f.write(place+'\n')
+					f.write(count_proper.__str__() + '. ' + place+'\n')
 				elif (prop_link.text.encode('utf-8').find('/') != -1 ):
 					place = prop_link.text.encode('utf-8').split('/')[0]
-					f.write(place+'\n')
+					f.write(count_proper.__str__() + '. ' + place+'\n')
 				else:
-					f.write(prop_link.text.encode('utf-8')+'\n')
+					f.write(count_proper.__str__() + '. ' + prop_link.text.encode('utf-8')+'\n')
 				f.write(link.encode('utf-8')+'\n')
+				count_proper = count_proper + 1
+			if count_proper == 16:
+				break
+		if count_proper == 16:
+			break
 
 		# 看有沒有下一頁
 		next_page = soup.find("a", {"class":"nav next rndBtn ui_button primary taLnk"})
@@ -250,7 +237,6 @@ def get_property_title_and_link(soup,f,dir_name):
 	folder_name = dir_name
 	pool2 = multiprocessing.Pool(4)
 	f_property_title_and_link=open(dir_name + "/eng_property_title_and_link.txt", 'r')
-	f_rank = open(dir_name + "/property_score.txt", 'w')
 	while True:
 		# 景點名稱
 		out = f_property_title_and_link.readline()
@@ -265,7 +251,6 @@ def get_property_title_and_link(soup,f,dir_name):
 			os.makedirs(dir_name)
 		pool2.apply_async(get_title_and_link,(property_url,dir_name,))
 	f_property_title_and_link.close()
-	f_rank.close()
 	pool2.close()
 	pool2.join()
 	print "Start delete garbage folder"
@@ -304,6 +289,4 @@ def main():
 	get_position(open_attraction_file)
 
 if __name__ == "__main__":
-	FORMAT = '%(asctime)s %(lineno)04d %(levelname)05s %(message)s'
-	logging.basicConfig(format = FORMAT, level=logging.DEBUG, filename='log.txt')
 	main()
