@@ -1,4 +1,13 @@
 # Tripadvisor crawler
+
+-------
+
+## 2017/10/26 Update
+
+官方改東西好像不能用了?
+
+-------
+
 這是一個用來抓 tripadvisor 的 crawler，他是使用python 2.7.9 所寫。
 
 Crawler.py 應該不會再更新了，因為我們的專題似乎不會做中文。如果要使用請搭配 Attractions.txt。
